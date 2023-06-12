@@ -1,7 +1,7 @@
 import hashlib
 import binascii
 import struct
-from monero.wallet import address as monero_address
+from monero import decode_address
 
 # Monero Genesis Information
 genesis_timestamp = 1577836800  # Unix timestamp for the genesis block
@@ -14,9 +14,9 @@ genesis_prev_hash = "00000000000000000000000000000000000000000000000000000000000
 genesis_merkle_root = "0000000000000000000000000000000000000000000000000000000000000000"
 genesis_difficulty = 1
 
-# Convert Monero address from Base58 to hexadecimal
-decoded_address = monero_address.decode(premine_address)
-hex_address = binascii.hexlify(decoded_address.to_binary()).decode()
+# Decode Monero address
+decoded_address = decode_address(premine_address)
+hex_address = binascii.hexlify(decoded_address.encode()).decode()
 
 # Create the genesis transaction structure
 tx_version = 1
@@ -26,7 +26,7 @@ tx_vout = struct.pack("<Q", 1)  # Number of transaction outputs (always 1)
 
 # Create the transaction output
 tx_output_amount = struct.pack("<Q", premine_amount)
-tx_output_script_size = struct.pack("<B", len(hex_address))
+tx_output_script_size = struct.pack("<B", len(hex_address) // 2)
 tx_output_script = binascii.unhexlify(hex_address.encode())
 
 # Compute the hash of the transaction structure

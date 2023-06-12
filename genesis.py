@@ -1,43 +1,35 @@
 import hashlib
-import datetime
+import binascii
 import struct
 
-def generate_genesis_block(timestamp, premine_amount, premine_address):
-    # Define the initial values
-    version = 1
-    prev_block_hash = "0" * 64  # Assuming this is the first block
-    merkle_root = "0" * 64  # Placeholder value for the merkle root
-    difficulty = 1
-    nonce = 100
-    target = 2 ** 240 // difficulty  # Calculate the target value for PoW verification
+# Monero Genesis Information
+genesis_timestamp = 1577836800  # Unix timestamp for the genesis block
+genesis_nonce = 10000           # Nonce for the genesis block
+premine_address = "45VirJ4TnTLEhMXY4mVsG1SUWMb8FML2BQ7PGaNMs7TTSQKLNMKqw8j9puJkkE2nk1eCZ3NKBjDfx4MrdTqpte489pvn1tm"  # Address to receive the premine
+premine_amount = 1000000000            # Premine amount (in atomic units)
 
-    # Create the coinbase transaction for the premine
-    coinbase_tx = f"Reward: {premine_amount} XMR to {premine_address}"
+# Monero Genesis Constants
+genesis_prev_hash = "0000000000000000000000000000000000000000000000000000000000000000"
+genesis_merkle_root = "0000000000000000000000000000000000000000000000000000000000000000"
+genesis_difficulty = 1
 
-    # Construct the block template
-    block_template = struct.pack("<I", version)
-    block_template += bytes.fromhex(prev_block_hash)
-    block_template += bytes.fromhex(merkle_root)
-    block_template += struct.pack("<Q", int(timestamp.timestamp()))
-    block_template += struct.pack("<I", difficulty)
-    block_template += struct.pack("<Q", nonce)
-    block_template += struct.pack("<Q", target)
-    block_template += coinbase_tx.encode()
+# Create the Monero genesis block header
+genesis_header = struct.pack(
+    "<I32s32sIII", genesis_timestamp, bytes.fromhex(genesis_prev_hash),
+    bytes.fromhex(genesis_merkle_root), genesis_nonce, genesis_difficulty, premine_amount
+)
 
-    # Hash the block template
-    block_hash = hashlib.sha256(block_template).digest()
-    block_hash = hashlib.sha256(block_hash).digest()
-    block_hash_hex = block_hash[::-1].hex()
+# Compute the hash of the genesis block header
+genesis_hash = hashlib.sha256(hashlib.sha256(genesis_header).digest()).digest()
+genesis_hash_hex = binascii.hexlify(genesis_hash[::-1]).decode()
 
-    # Create the genesis block by combining the block hash and coinbase transaction
-    genesis_block = f"Block Hash: {block_hash_hex}\nCoinbase TX: {coinbase_tx}"
-
-    return genesis_block
-
-# Example usage
-timestamp = datetime.datetime(2023, 6, 10)  # Replace with the desired timestamp
-premine_amount = 1000000000  # Adjust this value as needed
-premine_address = "45VirJ4TnTLEhMXY4mVsG1SUWMb8FML2BQ7PGaNMs7TTSQKLNMKqw8j9puJkkE2nk1eCZ3NKBjDfx4MrdTqpte489pvn1tm"  # Replace with the desired premine address
-
-genesis_block = generate_genesis_block(timestamp, premine_amount, premine_address)
-print(genesis_block)
+# Print the generated Monero genesis block
+print("Genesis Block Information:")
+print("Timestamp:", genesis_timestamp)
+print("Previous Hash:", genesis_prev_hash)
+print("Merkle Root:", genesis_merkle_root)
+print("Nonce:", genesis_nonce)
+print("Difficulty:", genesis_difficulty)
+print("Premine Address:", premine_address)
+print("Premine Amount:", premine_amount)
+print("Genesis Hash:", genesis_hash_hex)

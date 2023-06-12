@@ -1,7 +1,7 @@
 import hashlib
 import binascii
 import struct
-from monero import decode_address
+import base58
 
 # Monero Genesis Information
 genesis_timestamp = 1577836800  # Unix timestamp for the genesis block
@@ -15,8 +15,8 @@ genesis_merkle_root = "000000000000000000000000000000000000000000000000000000000
 genesis_difficulty = 1
 
 # Decode Monero address
-decoded_address = decode_address(premine_address)
-hex_address = binascii.hexlify(decoded_address.encode()).decode()
+decoded_address = base58.b58decode(premine_address)
+hex_address = binascii.hexlify(decoded_address[:-8]).decode()
 
 # Create the genesis transaction structure
 tx_version = 1
